@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+Sitemap: https://fatshev9-art.github.io/pnevmolin-demo-snn73/sitemap.xml
