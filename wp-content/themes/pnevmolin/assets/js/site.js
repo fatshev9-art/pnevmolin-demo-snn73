@@ -1,5 +1,5 @@
 /* Общий скрипт v3: меню и мега-меню, шторка на телефоне, поиск, появление блоков, оглавление,
-   копирование почты, корзина с нижней панели, вид списка и поиск на странице категории. Без библиотек. */
+   копирование почты, галерея товара, корзина с нижней панели, вид списка и поиск на странице категории. Без библиотек. */
 (function () {
   'use strict';
 
@@ -331,6 +331,38 @@
       if (empty) empty.hidden = shown > 0;
     });
   }
+
+  /* ---------- галерея товара: миниатюры переключают кадры (клик, Enter, Space, стрелки, Home, End) ---------- */
+  $$('[data-pgal-thumbs]').forEach(function (bar) {
+    var btns = $$('[data-pgal-th]', bar);
+    var slides = btns.map(function (b) { return doc.getElementById(b.getAttribute('aria-controls')); });
+    if (btns.length < 2 || slides.some(function (s) { return !s; })) return;
+    bar.classList.add('is-js');
+    var cur = 0;
+    var show = function (i, focus) {
+      cur = (i + btns.length) % btns.length;
+      btns.forEach(function (b, n) {
+        b.setAttribute('aria-pressed', n === cur ? 'true' : 'false');
+        b.tabIndex = n === cur ? 0 : -1;
+        slides[n].hidden = n !== cur;
+      });
+      if (focus) btns[cur].focus();
+    };
+    btns.forEach(function (b, n) {
+      b.addEventListener('click', function () { show(n, false); });
+    });
+    bar.addEventListener('keydown', function (e) {
+      var next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = cur + 1;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = cur - 1;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = btns.length - 1;
+      if (next === null) return;
+      e.preventDefault();
+      show(next, true);
+    });
+    show(0, false);
+  });
 
   /* ---------- копирование почты ---------- */
   $$('.js-copy').forEach(function (btn) {
